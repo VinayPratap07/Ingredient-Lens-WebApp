@@ -47,13 +47,9 @@ export const imageAnalysisRes = async (id: string) => {
 };
 
 export const searchIngredient = async (searchQuery: string) => {
-  const res = await api.post(
-    "/searchIngredient",
-    { params: { searchQuery } },
-    {
-      withCredentials: true,
-    },
-  );
+  const res = await api.get(`/searchIngredient?search=${searchQuery}`, {
+    withCredentials: true,
+  });
 
   return res.data;
 };

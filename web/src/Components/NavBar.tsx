@@ -6,7 +6,7 @@ import {
   IoPersonOutline,
   IoBookmarkOutline,
 } from "react-icons/io5";
-import { Link, NavLink } from "react-router";
+import { Link, NavLink, useNavigate } from "react-router";
 
 // Standard utility to read a cookie value by key safely
 function getCookie(name: string): string | null {
@@ -20,13 +20,12 @@ interface NavBarProps {
   authCookieName?: string; // Defaults to "token"
 }
 
-export default function NavBar({
-  onSearch,
-  authCookieName = "token",
-}: NavBarProps) {
+export default function NavBar({ authCookieName = "token" }: NavBarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Check if the auth cookie exists and has a non-empty value
@@ -41,9 +40,8 @@ export default function NavBar({
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (onSearch) {
-      onSearch(searchQuery.trim());
-    }
+
+    navigate(`/search?q=${searchQuery}`);
   };
 
   return (

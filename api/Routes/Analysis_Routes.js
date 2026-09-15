@@ -11,8 +11,7 @@ const { upload } = require("../Middlewares/Multer_Middleware");
 const router = Router();
 
 router.post("/imageAnalysis", upload.single("image"), imageIngredientAnalysis);
-router.post("/searchIngredient", searchIngredients);
-router.get("/getIngredients", getIngredients);
+router.get("/searchIngredient", searchIngredients);
 router.get("/imageAnalysis/:id", getImageAnalysis);
 router.get("/getSingleIngredient/:id", getAnalysisForOneIngredient);
 

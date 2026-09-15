@@ -9,7 +9,7 @@ import PageNotFound from "./Components/PageNotFound.tsx";
 import SignUpPage from "./Pages/SignUpPage.tsx";
 import LogInPage from "./Pages/LogInPage.tsx";
 import { ImageAnalysisPage } from "./Pages/ImageAnalysisPage.tsx";
-import IngredientPage from "./Pages/IngredientPage.tsx";
+import SearchIngredientPage from "./Pages/SearchIngredientPage.tsx";
 import UserProfile from "./Pages/UserProfilePage.tsx";
 import AboutPage from "./Pages/AboutPage.tsx";
 
@@ -29,8 +29,8 @@ const router = createBrowserRouter([
         element: <ImageAnalysisPage />,
       },
       {
-        path: "/ingredients",
-        element: <IngredientPage />,
+        path: "/search",
+        element: <SearchIngredientPage />,
       },
     ],
   },

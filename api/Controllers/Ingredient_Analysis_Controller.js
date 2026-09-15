@@ -123,49 +123,12 @@ async function getAnalysisForOneIngredient(req, res) {
   }
 }
 
-async function getIngredients(req, res) {
-  try {
-    const page = Math.max(parseInt(req.query.page) || 1, 1);
-    const limit = Math.min(parseInt(req.query.limit) || 10, 100);
-
-    const skip = (page - 1) * limit;
-
-    const [ingredients, total] = await Promise.all([
-      IngredientSearch.find()
-        .sort({ _id: 1 })
-        .skip(skip)
-        .limit(limit)
-        .populate("analysis"),
-
-      IngredientSearch.countDocuments(),
-    ]);
-
-    const totalPages = Math.ceil(total / limit);
-
-    return res.status(200).json({
-      success: true,
-      data: ingredients,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages,
-        hasNextPage: page < totalPages,
-        hasPreviousPage: page > 1,
-      },
-    });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-}
-
 async function searchIngredients(req, res) {
-  const ingredient = req.query.searchQuery;
+  const { search } = req.query;
 
-  if (!ingredient) {
+  console.log(search);
+
+  if (!search || search.trim().length === 0) {
     return;
   }
 
@@ -175,7 +138,7 @@ async function searchIngredients(req, res) {
         $search: {
           index: "ingredientSearch",
           text: {
-            query: ingredient,
+            query: search,
             path: "name",
             fuzzy: {
               maxEdits: 1,
@@ -336,7 +299,6 @@ async function processImageAnalysis(filePath, analysisId) {
 module.exports = {
   imageIngredientAnalysis,
   getAnalysisForOneIngredient,
-  getIngredients,
   getImageAnalysis,
   searchIngredients,
 };
