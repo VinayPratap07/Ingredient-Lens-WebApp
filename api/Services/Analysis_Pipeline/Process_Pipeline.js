@@ -1,6 +1,5 @@
 // const { fetchDermNet } = require("./Fetch_DermNet");
 const { fetchPubMedPaperIds } = require("./Fetch_PubMed_Papers");
-
 const { InkeedecoderScrapper } = require("./Inkeedecoder_Scrapper");
 // const { summmarizeEvidenceWithGemini } = require("./SummarizeEvidence");
 // const { summmarizeEvidenceWithGroq } = require("./SummarizeEvidence2");
@@ -40,10 +39,5 @@ async function ProcessPipeline(targetName) {
 
   return summarizedEvidence;
 }
-
-const ig = {
-  name: "Niacinamide",
-  aliases: [],
-};
 
 module.exports = { ProcessPipeline };

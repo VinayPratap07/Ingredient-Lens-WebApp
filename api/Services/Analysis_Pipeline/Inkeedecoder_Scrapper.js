@@ -4,7 +4,6 @@ const { slugify } = require("../../Utils/Pipeline_Helper_Function");
 async function InkeedecoderScrapper(input) {
   const name = slugify(input);
   const url = `https://incidecoder.com/ingredients/${name}`;
-  // const url = "https://inkeedecoder.com/ingredients/1-5-pentanediol";
 
   try {
     const response = await fetch(url, {
@@ -69,7 +68,3 @@ async function InkeedecoderScrapper(input) {
 }
 
 module.exports = { InkeedecoderScrapper };
-
-// InkeedecoderScrapper().then((data) => {
-//   console.log(data);
-// });
