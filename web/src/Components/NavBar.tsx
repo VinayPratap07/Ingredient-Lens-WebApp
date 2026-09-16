@@ -1,42 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   IoMenu,
   IoClose,
   IoSearchOutline,
   IoPersonOutline,
-  IoBookmarkOutline,
 } from "react-icons/io5";
 import { Link, NavLink, useNavigate } from "react-router";
+import { useAuth } from "../Context/Auth_Context";
+import { ImInfo } from "react-icons/im";
 
-// Standard utility to read a cookie value by key safely
-function getCookie(name: string): string | null {
-  if (typeof document === "undefined") return null;
-  const match = document.cookie.match(new RegExp(`(^|;\\s*)${name}=([^;]*)`));
-  return match ? decodeURIComponent(match[2]) : null;
-}
-
-interface NavBarProps {
-  onSearch?: (query: string) => void;
-  authCookieName?: string; // Defaults to "token"
-}
-
-export default function NavBar({ authCookieName = "token" }: NavBarProps) {
+export default function NavBar() {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+  const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    // Check if the auth cookie exists and has a non-empty value
-    const token = getCookie(authCookieName);
-    setIsLoggedIn(Boolean(token && token.trim().length > 0));
-  }, [authCookieName]);
-
-  const navLinks = [
-    { name: "Ingredients", route: "/ingredients" },
-    { name: "About", route: "/about" },
-  ];
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,35 +50,16 @@ export default function NavBar({ authCookieName = "token" }: NavBarProps) {
           </div>
         </form>
 
-        {/* Desktop Navigation Links */}
-        <nav className="hidden items-center gap-6 lg:flex">
-          {navLinks.map((link) => (
-            <NavLink
-              key={link.route}
-              to={link.route}
-              className={({ isActive }) =>
-                `text-sm font-semibold transition-colors hover:text-[#23483A] ${
-                  isActive
-                    ? "text-[#23483A] underline underline-offset-4"
-                    : "text-[#23483A]/80"
-                }`
-              }
-            >
-              {link.name}
-            </NavLink>
-          ))}
-        </nav>
-
         {/* Desktop Auth State / Actions */}
         <div className="hidden items-center gap-3 md:flex">
           {isLoggedIn ? (
             <>
               <NavLink
-                to="/saved"
+                to="/about"
                 aria-label="View Saved Items"
                 className="flex h-10 w-10 items-center justify-center rounded-full border border-emerald-900/10 bg-[#DDE5DF]/60 text-[#23483A] transition-all hover:bg-[#DDE5DF] hover:shadow-xs"
               >
-                <IoBookmarkOutline className="h-5 w-5" />
+                <ImInfo className="h-5 w-5" />
               </NavLink>
 
               <NavLink
@@ -134,11 +93,11 @@ export default function NavBar({ authCookieName = "token" }: NavBarProps) {
           {isLoggedIn ? (
             <>
               <NavLink
-                to="/saved"
+                to="/about"
                 aria-label="View Saved Items"
                 className="flex h-9 w-9 items-center justify-center rounded-full border border-emerald-900/10 bg-[#DDE5DF]/60 text-[#23483A]"
               >
-                <IoBookmarkOutline className="h-4 w-4" />
+                <ImInfo className="h-4 w-4" />
               </NavLink>
               <NavLink
                 to="/profile"
@@ -192,17 +151,6 @@ export default function NavBar({ authCookieName = "token" }: NavBarProps) {
 
           {/* Mobile Nav Links */}
           <nav className="flex flex-col space-y-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.route}
-                to={link.route}
-                onClick={() => setIsOpen(false)}
-                className="rounded-lg px-3 py-2 text-base font-medium text-[#23483A] transition-colors hover:bg-emerald-50"
-              >
-                {link.name}
-              </Link>
-            ))}
-
             {!isLoggedIn && (
               <div className="pt-2 border-t border-emerald-900/10 flex flex-col gap-2">
                 <Link

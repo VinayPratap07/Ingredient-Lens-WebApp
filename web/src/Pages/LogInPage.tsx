@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { loginUser } from "../API_Services/User_Api";
+import { useAuth } from "../Context/Auth_Context";
 
 export default function LogInPage() {
   const [formData, setFormData] = useState({
@@ -10,11 +11,13 @@ export default function LogInPage() {
   });
 
   const navigate = useNavigate();
+  const { setUser } = useAuth();
 
   const mutation = useMutation({
     mutationFn: loginUser,
-    onSuccess: () => {
+    onSuccess: (data) => {
       navigate("/");
+      setUser(data);
     },
   });
 

@@ -13,6 +13,7 @@ import SearchIngredientPage from "./Pages/SearchIngredientPage.tsx";
 import UserProfile from "./Pages/UserProfilePage.tsx";
 import AboutPage from "./Pages/AboutPage.tsx";
 import { IngredientAnalysisPage } from "./Pages/IngredientAnalysisPage.tsx";
+import { AuthProvider } from "./Context/Auth_Context.tsx";
 
 const queryClient = new QueryClient();
 
@@ -62,9 +63,11 @@ const router = createBrowserRouter([
 ]);
 
 createRoot(document.getElementById("root")!).render(
-  <QueryClientProvider client={queryClient}>
-    <StrictMode>
-      <RouterProvider router={router} />
-    </StrictMode>
-  </QueryClientProvider>,
+  <AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <StrictMode>
+        <RouterProvider router={router} />
+      </StrictMode>
+    </QueryClientProvider>
+  </AuthProvider>,
 );

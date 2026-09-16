@@ -38,3 +38,10 @@ export const logOutUser = async () => {
 
   return res.data;
 };
+
+export const authUser = async () => {
+  const res = await api.get("/auth/me", { withCredentials: true });
+
+  console.log(res.data);
+  return res.data;
+};

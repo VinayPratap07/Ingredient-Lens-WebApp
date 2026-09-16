@@ -3,6 +3,7 @@ import { FaTrash, FaUser } from "react-icons/fa";
 import { FiCalendar, FiMail, FiLogOut } from "react-icons/fi";
 import { logOutUser } from "../API_Services/User_Api";
 import { useNavigate } from "react-router";
+import { useAuth } from "../Context/Auth_Context";
 
 export interface UserProfileData {
   name: string;
@@ -17,7 +18,7 @@ export default function UserProfile({
   joinDate,
   AnalysisRun,
 }: UserProfileData) {
-  const handleDelete = () => {};
+  const { logout } = useAuth();
 
   const navigate = useNavigate();
 
@@ -25,12 +26,15 @@ export default function UserProfile({
     mutationFn: logOutUser,
     onSuccess: () => {
       navigate("/");
+      logout();
     },
   });
 
   const onLogout = () => {
     mutation.mutate();
   };
+
+  const handleDelete = () => {};
 
   const formattedDate = new Date(joinDate).toLocaleDateString("en-US", {
     year: "numeric",

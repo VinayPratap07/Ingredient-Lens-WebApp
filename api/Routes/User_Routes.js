@@ -4,6 +4,7 @@ const {
   logInUser,
   getUser,
   logOutUser,
+  authUser,
 } = require("../Controllers/User_Controller");
 const {
   requireAuthenticaton,
@@ -14,6 +15,7 @@ const {
 
 const router = Router();
 
+router.get("/auth/me", requireAuthenticaton, authUser);
 router.post("/register", SignUpValidationMiddleware, registerUser);
 router.post("/login", logInUser);
 router.get("/getUser", requireAuthenticaton, getUser);

@@ -90,4 +90,12 @@ async function logOutUser(req, res) {
   }
 }
 
-module.exports = { registerUser, logInUser, getUser, logOutUser };
+async function authUser(req, res) {
+  if (req.user) {
+    return res.status(200).json({ status: "Autharised", user: req.user });
+  } else {
+    return res.status(404).json({ status: "Unautharised" });
+  }
+}
+
+module.exports = { registerUser, logInUser, getUser, logOutUser, authUser };
