@@ -4,6 +4,7 @@ const { InkeedecoderScrapper } = require("./Inkeedecoder_Scrapper");
 // const { summmarizeEvidenceWithGemini } = require("./SummarizeEvidence");
 // const { summmarizeEvidenceWithGroq } = require("./SummarizeEvidence2");
 const { summarizeEvidenceWithLlama } = require("./Ollama");
+const { skinSort } = require("./SkinSort_Scrapper");
 
 //This file calls all the API/ funcitons written to fetch the data and then passes on the data to the summarizeEvidence.js file to produce a clean output for the Database
 
@@ -14,18 +15,19 @@ async function ProcessPipeline(targetName) {
     // dermNetResults,
     pubMedResults,
     inkeedecoderResults,
+    skinSortResults,
   ] = await Promise.all([
-    // fetchCIR(targetName),
     // fetchDermNet(targetName),
     fetchPubMedPaperIds(targetName),
-    // fetchSCCSContent(targetName),
     InkeedecoderScrapper(targetName),
+    skinSort(targetName),
   ]);
 
   const flatEvidenceBundle = [
     // ...(dermNetResults || []),
     ...(pubMedResults.slice() || []),
-    ...inkeedecoderResults,
+    ...(inkeedecoderResults || []),
+    ...(skinSortResults || []),
   ];
 
   console.log(flatEvidenceBundle);

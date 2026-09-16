@@ -13,17 +13,6 @@ export const getSingleIngredient = async (id: string) => {
   return res.data;
 };
 
-export const getIngredients = async (page: number, limit: number = 20) => {
-  const res = await api.get("/getIngredients", {
-    params: {
-      page,
-      limit,
-    },
-    withCredentials: true,
-  });
-  return res.data;
-};
-
 export const imageAnalysis = async (data: { thumbnail: File }) => {
   const Data = new FormData();
 

@@ -49,7 +49,7 @@ async function fetchPubMedPaperIds(identityData) {
   }
 
   //Slicing number of ids and limiting to 30
-  const pmIdList = Array.from(pmidSet).slice(0, 30);
+  const pmIdList = Array.from(pmidSet).slice(0, 15);
   //If no id returning an empty array
   if (pmIdList.length === 0) {
     return [];

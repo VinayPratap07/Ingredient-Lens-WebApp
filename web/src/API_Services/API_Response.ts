@@ -1,5 +1,5 @@
 export interface IngredientItem {
-  id: string;
+  _id: string;
   name: string;
   casNumber?: string | null;
   aliases?: string[] | null;
@@ -16,7 +16,6 @@ export interface PaginationResponse {
 
 export interface IngredientsApiResponse {
   data: IngredientItem[];
-  pagination: PaginationResponse;
 }
 
 export type IngredientStatus = "good" | "neutral" | "dangerous";
