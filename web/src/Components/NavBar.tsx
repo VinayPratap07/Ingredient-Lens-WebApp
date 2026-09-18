@@ -28,8 +28,11 @@ export default function NavBar() {
         {/* Brand Logo */}
         <Link
           to="/"
-          className="shrink-0 text-2xl font-black tracking-tight text-[#23483A] transition-opacity hover:opacity-90 sm:text-3xl"
+          className="shrink-0 text-2xl font-black tracking-tight text-[#23483A] transition-opacity hover:opacity-90 sm:text-3xl flex items-center"
         >
+          <div className="w-8 h-8 rounded-lg bg-[#204533] flex items-center justify-center text-white font-bold text-lg tracking-tight group-hover:bg-[#163124] transition">
+            IL
+          </div>
           Ingredient<span className="text-[#315C4A]">Lens</span>
         </Link>
 
@@ -51,17 +54,17 @@ export default function NavBar() {
         </form>
 
         {/* Desktop Auth State / Actions */}
+
         <div className="hidden items-center gap-3 md:flex">
+          <NavLink
+            to="/about"
+            aria-label="View Saved Items"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-emerald-900/10 bg-[#DDE5DF]/60 text-[#23483A] transition-all hover:bg-[#DDE5DF] hover:shadow-xs"
+          >
+            <ImInfo className="h-5 w-5" />
+          </NavLink>
           {isLoggedIn ? (
             <>
-              <NavLink
-                to="/about"
-                aria-label="View Saved Items"
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-emerald-900/10 bg-[#DDE5DF]/60 text-[#23483A] transition-all hover:bg-[#DDE5DF] hover:shadow-xs"
-              >
-                <ImInfo className="h-5 w-5" />
-              </NavLink>
-
               <NavLink
                 to="/profile"
                 aria-label="User Profile"
@@ -90,15 +93,16 @@ export default function NavBar() {
 
         {/* Mobile Action Controls */}
         <div className="flex items-center gap-2 md:hidden">
+          ]
+          <NavLink
+            to="/about"
+            aria-label="View Saved Items"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-emerald-900/10 bg-[#DDE5DF]/60 text-[#23483A]"
+          >
+            <ImInfo className="h-4 w-4" />
+          </NavLink>
           {isLoggedIn ? (
             <>
-              <NavLink
-                to="/about"
-                aria-label="View Saved Items"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-emerald-900/10 bg-[#DDE5DF]/60 text-[#23483A]"
-              >
-                <ImInfo className="h-4 w-4" />
-              </NavLink>
               <NavLink
                 to="/profile"
                 aria-label="User Profile"
@@ -115,7 +119,6 @@ export default function NavBar() {
               Sign Up
             </Link>
           )}
-
           <button
             type="button"
             onClick={() => setIsOpen(!isOpen)}

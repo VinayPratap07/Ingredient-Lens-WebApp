@@ -1,4 +1,4 @@
-// const { fetchDermNet } = require("./Fetch_DermNet");
+const { dermNetScraper } = require("./dermNetScraper");
 const { fetchPubMedPaperIds } = require("./Fetch_PubMed_Papers");
 const { InkeedecoderScrapper } = require("./Inkeedecoder_Scrapper");
 // const { summmarizeEvidenceWithGemini } = require("./SummarizeEvidence");
@@ -11,20 +11,16 @@ const { skinSort } = require("./SkinSort_Scrapper");
 //InputIngredient is an array that contains name and aliases of the ingredient we want to serach for
 //Function to process the entire pipeline and produce clean output
 async function ProcessPipeline(targetName) {
-  const [
-    // dermNetResults,
-    pubMedResults,
-    inkeedecoderResults,
-    skinSortResults,
-  ] = await Promise.all([
-    // fetchDermNet(targetName),
-    fetchPubMedPaperIds(targetName),
-    InkeedecoderScrapper(targetName),
-    skinSort(targetName),
-  ]);
+  const [dermNetResult, pubMedResults, inkeedecoderResults, skinSortResults] =
+    await Promise.all([
+      dermNetScraper(targetName),
+      fetchPubMedPaperIds(targetName),
+      InkeedecoderScrapper(targetName),
+      skinSort(targetName),
+    ]);
 
   const flatEvidenceBundle = [
-    // ...(dermNetResults || []),
+    ...(dermNetResult || []),
     ...(pubMedResults.slice() || []),
     ...(inkeedecoderResults || []),
     ...(skinSortResults || []),

@@ -11,9 +11,9 @@ import LogInPage from "./Pages/LogInPage.tsx";
 import { ImageAnalysisPage } from "./Pages/ImageAnalysisPage.tsx";
 import SearchIngredientPage from "./Pages/SearchIngredientPage.tsx";
 import UserProfile from "./Pages/UserProfilePage.tsx";
-import AboutPage from "./Pages/AboutPage.tsx";
 import { IngredientAnalysisPage } from "./Pages/IngredientAnalysisPage.tsx";
 import { AuthProvider } from "./Context/Auth_Context.tsx";
+import AboutUs from "./Pages/AboutPage.tsx";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +38,10 @@ const router = createBrowserRouter([
         path: "/ingredient/:id",
         element: <IngredientAnalysisPage />,
       },
+      {
+        path: "/about",
+        element: <AboutUs />,
+      },
     ],
   },
   {
@@ -51,10 +55,6 @@ const router = createBrowserRouter([
   {
     path: "/login",
     element: <LogInPage />,
-  },
-  {
-    path: "/about",
-    element: <AboutPage />,
   },
   {
     path: "*",
