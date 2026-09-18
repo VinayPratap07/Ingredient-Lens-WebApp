@@ -1,20 +1,24 @@
 import { useState } from "react";
-import type { IngredientItem } from "../API_Services/API_Response";
 import { useNavigate } from "react-router";
+import type { AnalyzedIngredient } from "../API_Services/API_Response";
+
+type IngredientListProps = Pick<
+  AnalyzedIngredient,
+  "_id" | "name" | "casNumber" | "aliases"
+>;
 
 export default function IngredientList({
   _id,
   name,
   casNumber,
   aliases,
-}: IngredientItem) {
+}: IngredientListProps) {
   const [isOpen, setIsOpen] = useState(false);
-
-  const hasCas = Boolean(casNumber?.trim());
   const navigate = useNavigate();
 
-  const onViewAnalysis = (e: React.MouseEvent<HTMLButtonElement>) => {
-    console.log(_id);
+  const trimmedCas = casNumber?.trim() || null;
+
+  const handleViewAnalysis = () => {
     navigate(`/ingredient/${_id}`);
   };
 
@@ -39,9 +43,9 @@ export default function IngredientList({
               </h3>
             </div>
 
-            {hasCas && (
+            {trimmedCas && (
               <p className="text-xs text-[#66736B] pl-4 font-mono">
-                CAS: {casNumber}
+                CAS: {trimmedCas}
               </p>
             )}
           </div>
@@ -74,7 +78,7 @@ export default function IngredientList({
                   CAS Registry Number
                 </span>
                 <span className="font-mono text-xs font-semibold text-[#18201C]">
-                  {hasCas ? casNumber : "Not Assigned"}
+                  {trimmedCas ?? "Not Assigned"}
                 </span>
               </div>
 
@@ -84,11 +88,11 @@ export default function IngredientList({
                   Alternative Names / Aliases
                 </span>
 
-                {aliases && aliases.length > 0 ? (
+                {aliases.length > 0 ? (
                   <div className="flex flex-wrap gap-1.5">
-                    {aliases.map((alias, idx) => (
+                    {aliases.map((alias) => (
                       <span
-                        key={idx}
+                        key={alias}
                         className="px-2 py-0.5 rounded-md text-[11px] bg-[#E6D5B5] text-[#18201C] font-medium"
                       >
                         {alias}
@@ -106,7 +110,8 @@ export default function IngredientList({
             {/* View Analysis Action */}
             <div className="pt-1 flex justify-end">
               <button
-                onClick={onViewAnalysis}
+                type="button"
+                onClick={handleViewAnalysis}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg bg-[#23483A] hover:bg-[#1b382d] text-[#F7F3EA] text-xs font-semibold tracking-wide transition-colors focus:outline-none focus:ring-2 focus:ring-[#23483A] focus:ring-offset-1 cursor-pointer"
               >
                 <span>View Analysis</span>

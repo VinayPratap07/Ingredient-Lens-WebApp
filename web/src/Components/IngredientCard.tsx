@@ -1,26 +1,11 @@
 import { useState } from "react";
-import type {
-  IngredientCardProps,
-  IngredientStatus,
-} from "../API_Services/API_Response";
+import type { AnalyzedIngredient } from "../API_Services/API_Response";
 
-// Safely format evidence arrays or strings
-function formatEvidence(evidence: unknown): string | null {
-  if (!evidence) return null;
-  if (typeof evidence === "string") return evidence.trim() || null;
-  if (Array.isArray(evidence)) {
-    const joined = evidence
-      .map((e) =>
-        typeof e === "string"
-          ? e
-          : (e as { description?: string })?.description || "",
-      )
-      .filter(Boolean)
-      .join("; ");
-    return joined || null;
-  }
-  return null;
+interface IngredientCardProps {
+  item: AnalyzedIngredient;
 }
+
+type SafetyLevel = "good" | "neutral" | "dangerous";
 
 const COMPATIBILITY_STYLES: Record<string, { bg: string; text: string }> = {
   great: { bg: "bg-[#23483A]/15", text: "text-[#23483A]" },
@@ -29,25 +14,56 @@ const COMPATIBILITY_STYLES: Record<string, { bg: string; text: string }> = {
   caution: { bg: "bg-[#B96555]/20", text: "text-[#B96555]" },
 };
 
+const STATUS_CONFIG: Record<
+  SafetyLevel,
+  {
+    label: string;
+    badgeBg: string;
+    badgeText: string;
+    borderAccent: string;
+    dot: string;
+  }
+> = {
+  good: {
+    label: "Safe & Beneficial",
+    badgeBg: "#DDE5DF",
+    badgeText: "#23483A",
+    borderAccent: "#23483A",
+    dot: "#23483A",
+  },
+  neutral: {
+    label: "Neutral / Conditional",
+    badgeBg: "#E6D5B5",
+    badgeText: "#18201C",
+    borderAccent: "#C5B98A",
+    dot: "#C5B98A",
+  },
+  dangerous: {
+    label: "Potential Risk",
+    badgeBg: "#B9655520",
+    badgeText: "#B96555",
+    borderAccent: "#B96555",
+    dot: "#B96555",
+  },
+};
+
 export default function IngredientCard({ item }: IngredientCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const name = item.name || "Unknown Ingredient";
-  const category = item.category || "General";
-  const casNumber = item.casNumber?.trim() || null;
-  const aliases = Array.isArray(item.aliases) ? item.aliases : [];
+  const { name, casNumber, aliases, analysis } = item;
+  const benefits = analysis?.benefits ?? [];
+  const potentialRisks = analysis?.potentialRisks ?? [];
+  const whatItDoesList = analysis?.whatItDoes ?? [];
+  const skinCompatibility = analysis?.skinCompatibility;
 
-  const analysis = item.analysis;
-  const rawStatus = (
-    analysis?.status ||
-    item.status ||
-    "neutral"
-  ).toLowerCase() as IngredientStatus;
-  const status: IngredientStatus = ["good", "neutral", "dangerous"].includes(
-    rawStatus,
-  )
-    ? rawStatus
-    : "neutral";
+  // Derive status from risks presence since it is not a schema field
+  const status: SafetyLevel =
+    potentialRisks.length > 0
+      ? "dangerous"
+      : benefits.length > 0
+        ? "good"
+        : "neutral";
+  const statusTheme = STATUS_CONFIG[status];
 
   const fullDescription =
     analysis?.description || "No full description available.";
@@ -56,59 +72,19 @@ export default function IngredientCard({ item }: IngredientCardProps) {
       ? `${fullDescription.slice(0, 117)}...`
       : fullDescription;
 
-  // Normalize whatItDoes to an array
-  const whatItDoesList: string[] = Array.isArray(analysis?.whatItDoes)
-    ? analysis.whatItDoes
-    : typeof analysis?.whatItDoes === "string" && analysis.whatItDoes.trim()
-      ? [analysis.whatItDoes.trim()]
-      : [];
-
-  const skinCompatibility = analysis?.skinCompatibility;
-
-  const benefits = Array.isArray(analysis?.benefits) ? analysis.benefits : [];
-  const risks = Array.isArray(analysis?.potentialRisks)
-    ? analysis.potentialRisks
-    : Array.isArray(analysis?.risks)
-      ? analysis.risks
-      : [];
-
-  const statusConfig = {
-    good: {
-      label: "Safe & Beneficial",
-      badgeBg: "#DDE5DF",
-      badgeText: "#23483A",
-      borderAccent: "#23483A",
-      dot: "#23483A",
-    },
-    neutral: {
-      label: "Neutral / Conditional",
-      badgeBg: "#E6D5B5",
-      badgeText: "#18201C",
-      borderAccent: "#C5B98A",
-      dot: "#C5B98A",
-    },
-    dangerous: {
-      label: "Potential Risk",
-      badgeBg: "#B9655520",
-      badgeText: "#B96555",
-      borderAccent: "#B96555",
-      dot: "#B96555",
-    },
-  }[status];
-
   return (
     <div
       style={{
         backgroundColor: "#F7F3EA",
         borderColor: "#C8D0CA",
-        borderLeftColor: statusConfig.borderAccent,
+        borderLeftColor: statusTheme.borderAccent,
       }}
       className="w-full rounded-xl border border-l-4 shadow-sm transition-all duration-200 overflow-hidden font-sans text-[#18201C]"
     >
       {/* Clickable Header */}
       <button
         type="button"
-        onClick={() => setIsExpanded(!isExpanded)}
+        onClick={() => setIsExpanded((prev) => !prev)}
         className="w-full text-left p-5 flex items-start justify-between gap-4 cursor-pointer focus:outline-none focus:bg-[#DDE5DF]/30 transition-colors"
         aria-expanded={isExpanded}
       >
@@ -116,19 +92,16 @@ export default function IngredientCard({ item }: IngredientCardProps) {
           <div className="flex items-center gap-2 flex-wrap">
             <span
               style={{
-                backgroundColor: statusConfig.badgeBg,
-                color: statusConfig.badgeText,
+                backgroundColor: statusTheme.badgeBg,
+                color: statusTheme.badgeText,
               }}
               className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold tracking-wide"
             >
               <span
-                style={{ backgroundColor: statusConfig.dot }}
+                style={{ backgroundColor: statusTheme.dot }}
                 className="w-1.5 h-1.5 rounded-full"
               />
-              {statusConfig.label}
-            </span>
-            <span className="text-xs uppercase tracking-tight text-[#66736B] font-medium">
-              {category}
+              {statusTheme.label}
             </span>
           </div>
 
@@ -142,7 +115,7 @@ export default function IngredientCard({ item }: IngredientCardProps) {
 
         <div
           style={{ borderColor: "#C8D0CA" }}
-          className="p-1.5 rounded-lg border bg-[#DDE5DF]/40 text-[#18201C] shrink-0 mt-1 transition-transform duration-200"
+          className="p-1.5 rounded-lg border bg-[#DDE5DF]/40 text-[#18201C] shrink-0 mt-1"
         >
           <svg
             className={`w-4 h-4 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}
@@ -227,34 +200,37 @@ export default function IngredientCard({ item }: IngredientCardProps) {
           )}
 
           {/* Skin Compatibility Grid */}
-          {skinCompatibility && Object.keys(skinCompatibility).length > 0 && (
+          {skinCompatibility && (
             <div>
               <h4 className="text-xs font-semibold uppercase tracking-wider text-[#66736B] mb-2">
                 Skin Type Compatibility
               </h4>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {Object.entries(skinCompatibility).map(([type, rating]) => {
-                  if (!rating) return null;
-                  const normalizedRating = String(rating).toLowerCase();
-                  const style =
-                    COMPATIBILITY_STYLES[normalizedRating] ||
-                    COMPATIBILITY_STYLES.neutral;
-                  const formattedType = type.replace(/([A-Z])/g, " $1").trim();
+                {(Object.entries(skinCompatibility) as [string, string][]).map(
+                  ([type, rating]) => {
+                    const normalizedRating = rating.toLowerCase();
+                    const style =
+                      COMPATIBILITY_STYLES[normalizedRating] ||
+                      COMPATIBILITY_STYLES.neutral;
+                    const formattedType = type
+                      .replace(/([A-Z])/g, " $1")
+                      .trim();
 
-                  return (
-                    <div
-                      key={type}
-                      className={`px-3 py-2 rounded-lg border border-[#C8D0CA]/80 flex flex-col justify-between ${style.bg}`}
-                    >
-                      <span className="text-[10px] font-semibold uppercase tracking-wide text-[#66736B] capitalize">
-                        {formattedType}
-                      </span>
-                      <span className={`text-xs font-bold ${style.text}`}>
-                        {String(rating)}
-                      </span>
-                    </div>
-                  );
-                })}
+                    return (
+                      <div
+                        key={type}
+                        className={`px-3 py-2 rounded-lg border border-[#C8D0CA]/80 flex flex-col justify-between ${style.bg}`}
+                      >
+                        <span className="text-[10px] font-semibold uppercase tracking-wide text-[#66736B] capitalize">
+                          {formattedType}
+                        </span>
+                        <span className={`text-xs font-bold ${style.text}`}>
+                          {rating}
+                        </span>
+                      </div>
+                    );
+                  },
+                )}
               </div>
             </div>
           )}
@@ -266,34 +242,22 @@ export default function IngredientCard({ item }: IngredientCardProps) {
             </h4>
             {benefits.length > 0 ? (
               <ul className="space-y-2">
-                {benefits.map((b, idx) => {
-                  const text = typeof b === "string" ? b : b?.description;
-                  const evidenceStr =
-                    typeof b === "object" ? formatEvidence(b?.evidence) : null;
-                  const key =
-                    typeof b === "object" && b?._id
-                      ? b._id
-                      : `${name}-benefit-${idx}`;
-
-                  return (
-                    <li
-                      key={key}
-                      className="flex items-start gap-2 text-xs text-[#18201C]"
-                    >
-                      <span className="text-[#23483A] font-bold shrink-0">
-                        ✓
-                      </span>
-                      <div>
-                        <p>{text}</p>
-                        {evidenceStr && (
-                          <span className="block text-[10px] text-[#66736B] mt-0.5 italic">
-                            Evidence: {evidenceStr}
-                          </span>
-                        )}
-                      </div>
-                    </li>
-                  );
-                })}
+                {benefits.map((benefit) => (
+                  <li
+                    key={benefit._id}
+                    className="flex items-start gap-2 text-xs text-[#18201C]"
+                  >
+                    <span className="text-[#23483A] font-bold shrink-0">✓</span>
+                    <div>
+                      <p>{benefit.description}</p>
+                      {benefit.evidence.length > 0 && (
+                        <span className="block text-[10px] text-[#66736B] mt-0.5 italic">
+                          Evidence: {benefit.evidence.join("; ")}
+                        </span>
+                      )}
+                    </div>
+                  </li>
+                ))}
               </ul>
             ) : (
               <p className="text-xs text-[#66736B]">
@@ -307,36 +271,24 @@ export default function IngredientCard({ item }: IngredientCardProps) {
             <h4 className="text-xs font-semibold uppercase tracking-wider text-[#B96555]">
               Potential Concerns
             </h4>
-            {risks.length > 0 ? (
+            {potentialRisks.length > 0 ? (
               <ul className="space-y-2">
-                {risks.map((r, idx) => {
-                  const text = typeof r === "string" ? r : r?.description;
-                  const evidenceStr =
-                    typeof r === "object" ? formatEvidence(r?.evidence) : null;
-                  const key =
-                    typeof r === "object" && r?._id
-                      ? r._id
-                      : `${name}-risk-${idx}`;
-
-                  return (
-                    <li
-                      key={key}
-                      className="flex items-start gap-2 text-xs text-[#18201C]"
-                    >
-                      <span className="text-[#B96555] font-bold shrink-0">
-                        ✕
-                      </span>
-                      <div>
-                        <p>{text}</p>
-                        {evidenceStr && (
-                          <span className="block text-[10px] text-[#66736B] mt-0.5 italic">
-                            Evidence: {evidenceStr}
-                          </span>
-                        )}
-                      </div>
-                    </li>
-                  );
-                })}
+                {potentialRisks.map((risk) => (
+                  <li
+                    key={risk._id}
+                    className="flex items-start gap-2 text-xs text-[#18201C]"
+                  >
+                    <span className="text-[#B96555] font-bold shrink-0">✕</span>
+                    <div>
+                      <p>{risk.description}</p>
+                      {risk.evidence.length > 0 && (
+                        <span className="block text-[10px] text-[#66736B] mt-0.5 italic">
+                          Evidence: {risk.evidence.join("; ")}
+                        </span>
+                      )}
+                    </div>
+                  </li>
+                ))}
               </ul>
             ) : (
               <p className="text-xs text-[#66736B]">

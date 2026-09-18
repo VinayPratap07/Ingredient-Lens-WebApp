@@ -14,52 +14,11 @@ import { useParams, useNavigate } from "react-router";
 import { getSingleIngredient } from "../API_Services/Analysis_Api";
 import Loading from "../Components/LoadingComponent";
 import ErrorState from "../Components/ErrorComponent";
-
-interface ApiEvidence {
-  _id?: string;
-  source?: string;
-  pmid?: string;
-  url?: string;
-}
-
-interface ApiBenefit {
-  _id: string;
-  description: string;
-  evidence?: ApiEvidence[];
-}
-
-interface ApiRisk {
-  _id: string;
-  title?: string;
-  description: string;
-  severity?: "low" | "moderate" | "high";
-  source?: string;
-}
-
-interface ApiIngredientData {
-  _id: string;
-  id: string;
-  name: string;
-  casNumber?: string;
-  aliases?: string[];
-  analysis?: {
-    _id: string;
-    description?: string;
-    whatItDoes?: string[];
-    benefits?: ApiBenefit[];
-    potentialRisks?: ApiRisk[];
-    skinCompatibility?: {
-      acneProne?: string;
-      dry?: string;
-      oily?: string;
-      sensitive?: string;
-    };
-  };
-}
+import type { AnalyzedIngredient } from "../API_Services/API_Response";
 
 interface ApiResponse {
-  message: string;
-  data: ApiIngredientData;
+  message?: string;
+  data: AnalyzedIngredient;
 }
 
 export const IngredientAnalysisPage: React.FC = () => {
@@ -79,7 +38,6 @@ export const IngredientAnalysisPage: React.FC = () => {
 
   const ingredient = data?.data;
 
-  // Extract benefits and risks safely
   const benefits = useMemo(
     () => ingredient?.analysis?.benefits ?? [],
     [ingredient],
@@ -94,7 +52,6 @@ export const IngredientAnalysisPage: React.FC = () => {
   );
   const skinCompatibility = ingredient?.analysis?.skinCompatibility;
 
-  // Truncation logic for the 2x2 grid preview
   const displayedBenefits = showAllBenefits ? benefits : benefits.slice(0, 4);
 
   if (!id) {
@@ -106,7 +63,14 @@ export const IngredientAnalysisPage: React.FC = () => {
   }
 
   if (isLoading) return <Loading />;
-  if (error || !ingredient) return <ErrorState />;
+  if (error) return <ErrorState error={error} />;
+  if (!ingredient) {
+    return (
+      <div className="min-h-screen bg-[#f7f3eb] p-6 flex items-center justify-center text-[#525953] text-sm italic">
+        Ingredient details unavailable.
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f7f3eb] text-[#1c1c1c] font-sans antialiased py-8 px-4 sm:px-6 lg:px-8">
@@ -170,16 +134,18 @@ export const IngredientAnalysisPage: React.FC = () => {
             {/* Skin Compatibility Indicators */}
             {skinCompatibility && (
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-white/70 backdrop-blur-sm border border-[#e3ded4] p-2.5 rounded-xl self-start text-center">
-                {Object.entries(skinCompatibility).map(([type, rating]) => (
-                  <div key={type} className="px-2">
-                    <span className="block text-[9px] uppercase font-bold text-[#636b64] truncate">
-                      {type.replace(/([A-Z])/g, " $1")}
-                    </span>
-                    <span className="text-xs font-black text-[#204938]">
-                      {rating}
-                    </span>
-                  </div>
-                ))}
+                {(Object.entries(skinCompatibility) as [string, string][]).map(
+                  ([type, rating]) => (
+                    <div key={type} className="px-2">
+                      <span className="block text-[9px] uppercase font-bold text-[#636b64] truncate">
+                        {type.replace(/([A-Z])/g, " $1")}
+                      </span>
+                      <span className="text-xs font-black text-[#204938]">
+                        {rating}
+                      </span>
+                    </div>
+                  ),
+                )}
               </div>
             )}
           </div>
@@ -195,9 +161,9 @@ export const IngredientAnalysisPage: React.FC = () => {
               <span className="text-xs font-semibold text-[#636b64] mr-1">
                 Functions:
               </span>
-              {whatItDoes.map((func, i) => (
+              {whatItDoes.map((func) => (
                 <span
-                  key={i}
+                  key={func}
                   className="px-2.5 py-1 text-xs font-medium bg-[#f0e8dc] text-[#3e3522] rounded-md border border-[#dfd6c6]"
                 >
                   {func}
@@ -231,7 +197,7 @@ export const IngredientAnalysisPage: React.FC = () => {
                       key={item._id}
                       className="flex items-start gap-3.5 p-4 rounded-xl border border-[#e3ded4] bg-white/60 shadow-[0_1px_2px_rgba(0,0,0,0.02)]"
                     >
-                      <div className="mt-0.5 flex-shrink-0">
+                      <div className="mt-0.5 shrink-0">
                         <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[#204938] text-white">
                           <FiCheck className="w-4 h-4 stroke-[2.5]" />
                         </span>
@@ -240,10 +206,15 @@ export const IngredientAnalysisPage: React.FC = () => {
                         <h3 className="font-bold text-sm leading-snug text-[#161d1a]">
                           {item.description}
                         </h3>
-                        <p className="text-xs text-[#525953] leading-relaxed">
-                          Clinical evidence indicates proven biological efficacy
-                          for this indication.
-                        </p>
+                        {item.evidence.length > 0 ? (
+                          <p className="text-xs text-[#525953] leading-relaxed italic">
+                            Evidence: {item.evidence.join("; ")}
+                          </p>
+                        ) : (
+                          <p className="text-xs text-[#525953] leading-relaxed">
+                            Documented functional benefit.
+                          </p>
+                        )}
                         <div className="pt-1 flex items-center gap-1.5 text-[10px] font-semibold tracking-wider text-[#636b64]">
                           <span>FROM:</span>
                           <span className="px-2 py-0.5 rounded bg-[#f1e4cb] text-[#4d422a] truncate max-w-[200px]">
@@ -300,29 +271,24 @@ export const IngredientAnalysisPage: React.FC = () => {
                     key={risk._id}
                     className="flex items-start gap-3.5 p-4 rounded-xl border border-[#f0c5bd] bg-[#fffaf8] shadow-[0_1px_2px_rgba(0,0,0,0.02)]"
                   >
-                    <div className="mt-0.5 flex-shrink-0">
+                    <div className="mt-0.5 shrink-0">
                       <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[#af5a4c] text-white">
                         <FiAlertCircle className="w-4 h-4 stroke-[2.5]" />
                       </span>
                     </div>
                     <div className="flex-1 min-w-0 space-y-1.5">
-                      <div className="flex items-center justify-between gap-2">
-                        <h3 className="font-bold text-sm leading-snug text-[#161d1a]">
-                          {risk.title || "Potential Dermatological Risk"}
-                        </h3>
-                        {risk.severity && (
-                          <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-[#f9dbd4] text-[#86372a]">
-                            {risk.severity}
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-xs text-[#525953] leading-relaxed">
+                      <h3 className="font-bold text-sm leading-snug text-[#161d1a]">
                         {risk.description}
-                      </p>
+                      </h3>
+                      {risk.evidence.length > 0 && (
+                        <p className="text-xs text-[#525953] leading-relaxed italic">
+                          Evidence: {risk.evidence.join("; ")}
+                        </p>
+                      )}
                       <div className="pt-1 flex items-center gap-1.5 text-[10px] font-semibold tracking-wider text-[#636b64]">
                         <span>FROM:</span>
                         <span className="px-2 py-0.5 rounded bg-[#f9dbd4] text-[#86372a] truncate max-w-[200px]">
-                          {risk.source || ingredient.name}
+                          {ingredient.name}
                         </span>
                       </div>
                     </div>

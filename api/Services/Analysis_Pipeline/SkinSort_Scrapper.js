@@ -1,5 +1,5 @@
 const cheerio = require("cheerio");
-const { slugify } = require("../../Utils/Pipeline_Helper_Function");
+const { slugify, USER_AGENT } = require("../../Utils/Pipeline_Helper_Function");
 
 async function skinSort(ingredient) {
   const name = slugify(ingredient);
@@ -8,8 +8,7 @@ async function skinSort(ingredient) {
   try {
     const response = await fetch(url, {
       headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/140 Safari/537.36",
+        "User-Agent": USER_AGENT,
       },
     });
 

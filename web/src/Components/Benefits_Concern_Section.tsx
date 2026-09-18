@@ -1,24 +1,11 @@
 import { useState, useMemo } from "react";
 import { FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import type { IconType } from "react-icons";
-
-// 1. Explicit Data Contracts matching backend payload
-export interface RawAttribute {
-  description?: string;
-  evidence?: string | unknown[];
-  _id?: string;
-}
-
-export interface IngredientAnalysis {
-  _id?: string;
-  id?: string;
-  name?: string;
-  analysis?: {
-    benefits?: Array<string | RawAttribute>;
-    potentialRisks?: Array<string | RawAttribute>;
-    risks?: Array<string | RawAttribute>;
-  };
-}
+import type {
+  AnalyzedIngredient,
+  BenefitItem,
+  PotentialRiskItem,
+} from "../API_Services/API_Response";
 
 export interface AggregatedItem {
   title: string;
@@ -28,33 +15,14 @@ export interface AggregatedItem {
 }
 
 interface BenefitsAndConcernsSectionProps {
-  analysisData?: IngredientAnalysis[];
+  analysisData?: AnalyzedIngredient[];
 }
 
-// Safely unwraps strings, arrays, or objects into a single clean string
-function toCleanString(val: unknown): string {
-  if (typeof val === "string") return val.trim();
-  if (Array.isArray(val)) {
-    return val
-      .map((item) =>
-        typeof item === "string" ? item : item?.description || "",
-      )
-      .filter(Boolean)
-      .join("; ")
-      .trim();
-  }
-  if (val != null && typeof val === "object" && "description" in val) {
-    return String((val as { description: unknown }).description).trim();
-  }
-  return "";
-}
-
-// 2. Collector Logic
 function aggregateAttributes(
-  data: IngredientAnalysis[] = [],
+  data: AnalyzedIngredient[] = [],
   extractor: (
-    item: IngredientAnalysis,
-  ) => Array<string | RawAttribute> | undefined,
+    item: AnalyzedIngredient,
+  ) => (BenefitItem | PotentialRiskItem)[] | undefined,
   fallbackDescription: string,
 ): AggregatedItem[] {
   const map = new Map<
@@ -63,31 +31,19 @@ function aggregateAttributes(
   >();
 
   for (const entry of data) {
-    const ingredientName = toCleanString(entry.name) || "Unknown Ingredient";
+    const ingredientName = entry.name?.trim() || "Unknown Ingredient";
     const rawList = extractor(entry) ?? [];
 
     for (const raw of rawList) {
-      if (!raw) continue;
-
-      let title = "";
-      let evidence = "";
-
-      if (typeof raw === "string") {
-        title = raw.trim();
-      } else if (typeof raw === "object") {
-        title = toCleanString(raw.description);
-        evidence = toCleanString(raw.evidence);
-      }
-
-      if (!title) title = "Unspecified";
+      const title = raw.description?.trim() || "Unspecified";
       const key = title.toLowerCase();
+      const evidence = raw.evidence.length > 0 ? raw.evidence.join("; ") : "";
 
       const existing = map.get(key);
       if (existing) {
         existing.item.count += 1;
         existing.sourceSet.add(ingredientName);
       } else {
-        const sourceSet = new Set<string>([ingredientName]);
         map.set(key, {
           item: {
             title,
@@ -95,7 +51,7 @@ function aggregateAttributes(
             count: 1,
             sources: [],
           },
-          sourceSet,
+          sourceSet: new Set([ingredientName]),
         });
       }
     }
@@ -107,7 +63,6 @@ function aggregateAttributes(
   }));
 }
 
-// 3. Reusable Section
 interface AttributeBlockProps {
   title: string;
   badgeLabel: string;
@@ -214,7 +169,6 @@ function AttributeBlock({
   );
 }
 
-// 4. Primary Component
 export default function BenefitsAndConcernsSection({
   analysisData = [],
 }: BenefitsAndConcernsSectionProps) {
@@ -232,7 +186,7 @@ export default function BenefitsAndConcernsSection({
     () =>
       aggregateAttributes(
         analysisData,
-        (item) => item.analysis?.potentialRisks ?? item.analysis?.risks,
+        (item) => item.analysis?.potentialRisks,
         "May cause sensitivity or unwanted reaction in vulnerable skin.",
       ),
     [analysisData],

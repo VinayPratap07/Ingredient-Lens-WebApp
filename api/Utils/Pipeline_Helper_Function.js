@@ -4,9 +4,8 @@
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 //User agents
-const User_Agent =
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
-  "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 IngredientAnalysisBot/2.0";
+const USER_AGENT =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/140 Safari/537.36";
 
 //Slugify means converting text into a URL-friendly format, often called a slug
 function slugify(input) {
@@ -14,4 +13,4 @@ function slugify(input) {
   return name.toLowerCase().replace(/\s+/g, "-");
 }
 
-module.exports = { sleep, User_Agent, slugify };
+module.exports = { sleep, USER_AGENT, slugify };

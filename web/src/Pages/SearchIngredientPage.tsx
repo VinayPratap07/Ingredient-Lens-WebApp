@@ -1,42 +1,51 @@
 import { useQuery } from "@tanstack/react-query";
+import { useSearchParams } from "react-router";
 import { searchIngredient } from "../API_Services/Analysis_Api";
 import Loading from "../Components/LoadingComponent";
 import ErrorState from "../Components/ErrorComponent";
-import { useLocation } from "react-router";
 import IngredientList from "../Components/IngredientList";
-import type { IngredientItem } from "../API_Services/API_Response";
+import type { AnalyzedIngredient } from "../API_Services/API_Response";
+
+interface SearchResponse {
+  result: AnalyzedIngredient[];
+}
 
 function SearchIngredientPage() {
-  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const searchTerm = searchParams.get("q")?.trim() ?? "";
 
-  const urlParams = new URLSearchParams(location.search);
-  const searchTerm = urlParams.get("q") ?? "";
-
-  const {
-    isLoading,
-    error,
-    data: list,
-  } = useQuery({
+  const { isLoading, error, data } = useQuery<SearchResponse>({
     queryKey: ["searchResult", searchTerm],
     queryFn: () => searchIngredient(searchTerm),
-    enabled: !!searchTerm,
+    enabled: searchTerm.length > 0,
   });
 
-  console.log(list);
+  if (!searchTerm) {
+    return (
+      <div className="min-h-screen flex justify-center p-4">
+        <div className="flex justify-center w-full max-w-xl h-fit p-8 rounded-xl border border-[#C8D0CA] bg-[#F7F3EA] text-center text-[#66736B] text-sm">
+          Please enter a search term to find ingredients.
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return <Loading />;
   }
+
   if (error) {
-    return <ErrorState />;
+    return <ErrorState error={error} />;
   }
 
-  const ingredients = list.result;
+  const ingredients = data?.result ?? [];
 
   if (ingredients.length === 0) {
     return (
-      <div className="flex justify-center w-full max-w-xl p-8 rounded-xl border border-[#C8D0CA] bg-[#F7F3EA] text-center text-[#66736B]">
-        No ingredients found to display.
+      <div className="min-h-screen flex justify-center p-4">
+        <div className="flex justify-center w-full max-w-xl h-fit p-8 rounded-xl border border-[#C8D0CA] bg-[#F7F3EA] text-center text-[#66736B] text-sm">
+          No ingredients found matching "{searchTerm}".
+        </div>
       </div>
     );
   }
@@ -52,13 +61,13 @@ function SearchIngredientPage() {
       </div>
 
       <div className="w-full max-w-xl flex flex-col gap-3">
-        {ingredients.map((items: IngredientItem) => (
+        {ingredients.map((item) => (
           <IngredientList
-            key={items._id}
-            _id={items._id}
-            name={items.name}
-            casNumber={items.casNumber}
-            aliases={items.aliases}
+            key={item._id}
+            _id={item._id}
+            name={item.name}
+            casNumber={item.casNumber}
+            aliases={item.aliases}
           />
         ))}
       </div>

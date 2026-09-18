@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import { getUserProfile } from "../API_Services/User_Api";
 import NavBar from "../Components/NavBar";
 import Loading from "../Components/LoadingComponent";
-import axios from "axios";
 import ErrorState from "../Components/ErrorComponent";
 
 function UserProfilePage() {
@@ -20,10 +19,7 @@ function UserProfilePage() {
   }
 
   if (error) {
-    if (axios.isAxiosError(error)) {
-      return <ErrorState error={error} />;
-    }
-    return <ErrorState />;
+    return <ErrorState error={error} />;
   }
 
   return (

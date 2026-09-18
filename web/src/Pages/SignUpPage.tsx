@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router";
+import { isAxiosError } from "axios";
 import { registerUser } from "../API_Services/User_Api";
 
 export default function SignUp() {
@@ -15,7 +16,6 @@ export default function SignUp() {
 
   const mutation = useMutation({
     mutationFn: registerUser,
-
     onSuccess: () => {
       setFormData({
         name: "",
@@ -23,7 +23,6 @@ export default function SignUp() {
         password: "",
         agree: false,
       });
-
       navigate("/login");
     },
   });
@@ -44,14 +43,20 @@ export default function SignUp() {
       email: formData.email,
       password: formData.password,
     });
-    console.log("Submitted:", formData);
   };
+
+  // Safely extract backend error message
+  const errorMessage = mutation.error
+    ? isAxiosError(mutation.error) && mutation.error.response?.data?.message
+      ? mutation.error.response.data.message
+      : "An unexpected error occurred. Please try again."
+    : null;
 
   return (
     <div className="min-h-screen bg-[#DDE5DF] flex items-center justify-center p-4 font-sans text-[#18201C]">
       <div className="w-full max-w-md bg-[#F7F3EA] rounded-2xl shadow-sm border border-[#C8D0CA] p-8">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-6">
           <div className="inline-block px-2.5 py-1 mb-3 rounded-full bg-[#E6D5B5] text-[#23483A] text-xs font-semibold tracking-wide">
             Get Started
           </div>
@@ -62,6 +67,18 @@ export default function SignUp() {
             Enter your details below to set up your workspace.
           </p>
         </div>
+
+        {/* Server Validation Error Display */}
+        {errorMessage && (
+          <div className="mb-5 p-3 rounded-lg border border-[#B96555]/30 bg-[#B96555]/10 flex items-start gap-2.5">
+            <span className="text-[#B96555] font-bold text-sm shrink-0 leading-tight">
+              ✕
+            </span>
+            <p className="text-xs font-semibold text-[#B96555] leading-normal">
+              {errorMessage}
+            </p>
+          </div>
+        )}
 
         {/* Form */}
         <form className="space-y-4" onSubmit={handleSubmit}>
@@ -125,7 +142,8 @@ export default function SignUp() {
               className="w-full text-sm px-3.5 py-2.5 rounded-lg border border-[#C8D0CA] bg-transparent text-[#18201C] placeholder-[#66736B]/60 focus:outline-none focus:ring-2 focus:ring-[#23483A] focus:border-transparent transition"
             />
             <p className="text-xs text-[#66736B] mt-1">
-              Must be at least 8 characters.
+              Must be at least 8 characters, include upper and lower case, and a
+              number.
             </p>
           </div>
 
@@ -165,9 +183,10 @@ export default function SignUp() {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full text-sm py-2.5 px-4 bg-[#23483A] hover:bg-[#32604D] text-[#F7F3EA] font-medium rounded-lg shadow-sm transition duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#23483A] cursor-pointer"
+            disabled={mutation.isPending}
+            className="w-full text-sm py-2.5 px-4 bg-[#23483A] hover:bg-[#32604D] disabled:opacity-60 disabled:cursor-not-allowed text-[#F7F3EA] font-medium rounded-lg shadow-sm transition duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#23483A] cursor-pointer"
           >
-            Create Account
+            {mutation.isPending ? "Creating Account..." : "Create Account"}
           </button>
         </form>
 

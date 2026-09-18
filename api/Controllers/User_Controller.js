@@ -8,7 +8,9 @@ async function registerUser(req, res) {
   const { fullName, email, password } = req.body;
 
   if (!fullName || !email || !password) {
-    return res.status(422).json({ message: "All fileds are Required" });
+    return res.status(422).json({
+      message: "All fields are required",
+    });
   }
 
   try {
@@ -18,16 +20,19 @@ async function registerUser(req, res) {
       password,
     });
 
-    return res
-      .status(201)
-      .json({ message: "User created Successfully", userId: user._id });
+    return res.status(201).json({
+      message: "User created successfully",
+      userId: user._id,
+    });
   } catch (error) {
     console.log(error);
 
     if (error.code === 11000) {
-      const fields = Object.Keys(error.KeyPattern)[0];
+      const field = Object.keys(error.keyPattern)[0];
 
-      return res.status(409).json({ message: `${fields} already exists` });
+      return res.status(409).json({
+        message: `${field} already exists`,
+      });
     }
 
     return res.status(500).json({

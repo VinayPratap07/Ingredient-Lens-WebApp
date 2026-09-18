@@ -2,7 +2,6 @@ const { Router } = require("express");
 const {
   imageIngredientAnalysis,
   getAnalysisForOneIngredient,
-  getIngredients,
   getImageAnalysis,
   searchIngredients,
 } = require("../Controllers/Ingredient_Analysis_Controller");

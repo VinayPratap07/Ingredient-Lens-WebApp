@@ -1,8 +1,4 @@
-const {
-  sleep,
-  User_Agent,
-  cleanHtml,
-} = require("../../Utils/Pipeline_Helper_Function");
+const { sleep, USER_AGENT } = require("../../Utils/Pipeline_Helper_Function");
 
 async function fetchDermNet(ingredientName) {
   //Clean text function
@@ -11,7 +7,7 @@ async function fetchDermNet(ingredientName) {
 
   try {
     const res = await fetch(searchUrl, {
-      headers: { "User-Agent": User_Agent },
+      headers: { "User-Agent": USER_AGENT },
       signal: AbortSignal.timeout(4000),
     });
 

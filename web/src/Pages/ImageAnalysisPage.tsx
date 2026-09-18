@@ -5,6 +5,7 @@ import { useParams } from "react-router";
 import BenefitsAndConcernsSection from "../Components/Benefits_Concern_Section";
 import Loading from "../Components/LoadingComponent";
 import ErrorComp from "../Components/ErrorComponent";
+import ErrorState from "../Components/ErrorComponent";
 
 export function ImageAnalysisPage() {
   const { id } = useParams<{ id: string }>();
@@ -34,7 +35,7 @@ export function ImageAnalysisPage() {
   }
 
   if (error) {
-    return <ErrorComp error={data.message} />;
+    return <ErrorState error={error} />;
   }
 
   if (data?.status === "Processing") {
