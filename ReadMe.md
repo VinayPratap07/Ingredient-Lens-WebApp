@@ -306,6 +306,7 @@ The search system can help identify the corresponding database entry.
     - Pubmed
     - DermNet
     - Inkeedecoder
+    - SkinSort
 
 ### AI
 

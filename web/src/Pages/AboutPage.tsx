@@ -277,15 +277,6 @@ const PipelineVisualizer = () => {
 };
 
 export default function AboutUs() {
-  const handleHomeClick = () => {
-    // Navigates or refreshes view back to root
-    window.location.href = "/";
-  };
-
-  const handleGithubClick = () => {
-    window.open("https://github.com", "_blank", "noopener,noreferrer");
-  };
-
   return (
     <div className="min-h-screen bg-[#f8faf7] text-[#13241b] flex flex-col font-sans selection:bg-[#204533] selection:text-white">
       {}
