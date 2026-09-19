@@ -1,6 +1,6 @@
-# Ingredient Lense
+# Ingredient Lens
 
-It is an AI powered cosmetic ingredient analysis platform that analyzes cosmetic product iingredients and provides evidence based information about theri benefits, risks, and propeties.
+It is an AI powered cosmetic ingredient analysis platform that analyzes cosmetic product ingredients and provides evidence based information about their benefits, risks, and propeties.
 
 ## Overview
 
