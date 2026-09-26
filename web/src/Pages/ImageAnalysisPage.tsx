@@ -4,7 +4,6 @@ import { imageAnalysisRes } from "../API_Services/Analysis_Api";
 import { useParams } from "react-router";
 import BenefitsAndConcernsSection from "../Components/Benefits_Concern_Section";
 import Loading from "../Components/LoadingComponent";
-import ErrorComp from "../Components/ErrorComponent";
 import ErrorState from "../Components/ErrorComponent";
 
 export function ImageAnalysisPage() {
@@ -95,7 +94,7 @@ export function ImageAnalysisPage() {
                     : null;
 
                 const functionText =
-                  item.analysis?.whatItDoes ||
+                  item.analysis?.whatItDoes.join(", ") ||
                   item.category ||
                   "Cosmetic Ingredient";
 
