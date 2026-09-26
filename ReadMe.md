@@ -24,6 +24,19 @@ The architecture reduces unnecessary AI processing and improves response time fo
 - Responsive frontend interface
 - User analysis History
 
+## Screenshots
+
+### Application Interface
+
+<p align="center">
+  <img src="./screenshots/Home.png" width="45%" />
+  <img src="./screenshots/ImageAnalysis.png" width="45%" />
+</p>
+
+<p align="center">
+  <img src="./screenshots/AnalysisSearch.png" width="45%" />
+  <img src="./screenshots/IngredientAnalysis.png" width="45%" />
+</p>
 # How It Works
 
 This application follows Database-first approach
